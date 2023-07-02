@@ -3,18 +3,19 @@ import preprocessor, helper
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
 st.sidebar.title("Whatsapp Chat Analyzer")
 
 uploaded_file = st.sidebar.file_uploader("Choose a file")
+frmt = st.sidebar.selectbox("Select Time Format", ["12 Hour", "24 Hour"])
 if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
-    df = preprocessor.preprocess(data)
+    df = preprocessor.preprocess(data, frmt)
 
     # fetch unique users
     user_list = df['user'].unique().tolist()
-    user_list.remove('group_notification')
+    if 'group_notification' in user_list:
+        user_list.remove('group_notification')
     user_list.sort()
     user_list.insert(0, "Overall")
 
@@ -78,7 +79,7 @@ if uploaded_file is not None:
         st.title("Weekly Activity Map")
         user_heatmap = helper.activity_heatmap(selected_user, df)
         fig, ax = plt.subplots()
-        ax = sns.heatmap(user_heatmap, vmin=0, vmax=500)
+        ax = sns.heatmap(user_heatmap, vmin=0, vmax=300)
         ax.set_title('Heatmap')
         ax.set_ylabel('days name')
         st.pyplot(fig)
